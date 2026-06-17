@@ -10,11 +10,14 @@ export CC=${ROCM_PATH}/bin/hipcc
 export CXX=${ROCM_PATH}/bin/hipcc
 
 # Force ROCm runtime architecture mapping to handle consumer cards cleanly
-export HSA_OVERRIDE_GFX_VERSION=11.0.2
+export HSA_OVERRIDE_GFX_VERSION=11.0.0
 export HIP_VISIBLE_DEVICES=0
+
+# OpenMP Runtime Thread Layout Rules
 export OMP_PROC_BIND=spread
 export OMP_PLACES=threads
-# Kokkos configuration -> Upgraded to a version with mature RDNA3 support
+
+# Kokkos configuration
 KOKKOS_VERSION="5.4.0"
 KOKKOS_HOME="${HOME}/kokkos-${KOKKOS_VERSION}"
 BUILD_DIR="${KOKKOS_HOME}/build-rocm"
@@ -51,14 +54,12 @@ cmake .. \
     -DCMAKE_PREFIX_PATH="${ROCM_PATH}" \
     -D_ROCM_PATH="${ROCM_PATH}" \
     -DKokkos_ENABLE_HIP=ON \
-    -DKokkos_ARCH_AMD_GFX906=ON \
     -DCMAKE_CXX_COMPILER=${CXX} \
-    -DCMAKE_CXX_FLAGS="--offload-arch=gfx1102" \
+    -DKokkos_ARCH_AMD_GFX1100=ON \
     -DKokkos_ENABLE_SERIAL=ON \
     -DKokkos_ENABLE_OPENMP=ON
 
-
-# Catch configuration failure safely without closing the terminal window
+# Catch configuration failure safely
 if [ $? -ne 0 ]; then
     echo "===================================================="
     echo "ERROR: CMake configuration failed! Aborting build."
